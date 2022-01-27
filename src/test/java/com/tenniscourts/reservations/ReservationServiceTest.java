@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -42,6 +43,62 @@ public class ReservationServiceTest {
         schedule.setStartDateTime(startDateTime);
 
         Assert.assertEquals(reservationService.getRefundValue(Reservation.builder().schedule(schedule).value(new BigDecimal(10L)).build()), new BigDecimal(10));
+    }
+
+    @Test
+    public void getRefundValueThreeQuartersRefund() {
+        Schedule schedule = new Schedule();
+
+        LocalDateTime startDateTime = LocalDateTime.now().plusHours(13);
+
+        schedule.setStartDateTime(startDateTime);
+
+        Assert.assertEquals(
+                reservationService.getRefundValue(Reservation.builder().schedule(schedule).value(new BigDecimal(10L)).build()),
+                new BigDecimal("7.50").setScale(2, RoundingMode.CEILING)
+        );
+    }
+
+    @Test
+    public void getRefundValueHalfRefund() {
+        Schedule schedule = new Schedule();
+
+        LocalDateTime startDateTime = LocalDateTime.now().plusHours(3);
+
+        schedule.setStartDateTime(startDateTime);
+
+        Assert.assertEquals(
+                reservationService.getRefundValue(Reservation.builder().schedule(schedule).value(new BigDecimal(10L)).build()),
+                new BigDecimal(5).setScale(2, RoundingMode.CEILING)
+        );
+    }
+
+    @Test
+    public void getRefundValueAQuarterRefund() {
+        Schedule schedule = new Schedule();
+
+        LocalDateTime startDateTime = LocalDateTime.now().plusHours(1).plusMinutes(30);
+
+        schedule.setStartDateTime(startDateTime);
+
+        Assert.assertEquals(
+                reservationService.getRefundValue(Reservation.builder().schedule(schedule).value(new BigDecimal(10L)).build()),
+                new BigDecimal("2.50").setScale(2, RoundingMode.CEILING)
+        );
+    }
+
+    @Test
+    public void getRefundValueNoRefund() {
+        Schedule schedule = new Schedule();
+
+        LocalDateTime startDateTime = LocalDateTime.now().plusSeconds(30);
+
+        schedule.setStartDateTime(startDateTime);
+
+        Assert.assertEquals(
+                reservationService.getRefundValue(Reservation.builder().schedule(schedule).value(new BigDecimal(10L)).build()),
+                BigDecimal.ZERO
+        );
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.tenniscourts.tenniscourts;
 
+import com.tenniscourts.reservations.ReservationDTO;
 import com.tenniscourts.schedules.ScheduleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +26,6 @@ public class TennisCourtDTO {
     private String name;
 
     private List<ScheduleDTO> tennisCourtSchedules;
+    private List<ReservationDTO> tennisCourtReservations;
 
 }

@@ -9,3 +9,10 @@ insert
         (id, start_date_time, end_date_time, tennis_court_id)
     values
         (null, '2020-12-20T20:00:00.0', '2020-02-20T21:00:00.0', 1);
+
+insert
+    into
+        reservation
+        (id, guest_id, schedule_id, value, reservation_status)
+    values
+        (null, 1, 1, 10, 0);

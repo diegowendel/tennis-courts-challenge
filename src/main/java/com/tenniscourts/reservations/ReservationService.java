@@ -1,12 +1,15 @@
 package com.tenniscourts.reservations;
 
 import com.tenniscourts.exceptions.EntityNotFoundException;
+import com.tenniscourts.schedules.ScheduleDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -63,9 +66,16 @@ public class ReservationService {
 
     public BigDecimal getRefundValue(Reservation reservation) {
         long hours = ChronoUnit.HOURS.between(LocalDateTime.now(), reservation.getSchedule().getStartDateTime());
+        long minutes = ChronoUnit.MINUTES.between(LocalDateTime.now(), reservation.getSchedule().getStartDateTime());
 
         if (hours >= 24) {
             return reservation.getValue();
+        } else if (hours >= 12) {
+            return reservation.getValue().multiply(new BigDecimal(".75"));
+        } else if (hours >= 2) {
+            return reservation.getValue().multiply(new BigDecimal(".50"));
+        } else if (minutes > 1) {
+            return reservation.getValue().multiply(new BigDecimal(".25"));
         }
 
         return BigDecimal.ZERO;
@@ -96,5 +106,10 @@ public class ReservationService {
                 .build());
         newReservation.setPreviousReservation(reservationMapper.map(previousReservation));
         return newReservation;
+    }
+
+    public List<ReservationDTO> findReservationsBySchedules(List<ScheduleDTO> schedules) {
+        List<Long> scheduleIds = schedules.stream().map(ScheduleDTO::getId).collect(Collectors.toList());
+        return reservationMapper.map(reservationRepository.findByScheduleIds(scheduleIds));
     }
 }
