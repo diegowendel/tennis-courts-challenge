@@ -74,11 +74,18 @@ public class ReservationService {
     /*TODO: This method actually not fully working, find a way to fix the issue when it's throwing the error:
             "Cannot reschedule to the same slot.*/
     public ReservationDTO rescheduleReservation(Long previousReservationId, Long scheduleId) {
-        Reservation previousReservation = cancel(previousReservationId);
+        // This cancel operation should be either rolled back in case of error
+        // or executed after the validation below
+        // Reservation previousReservation = cancel(previousReservationId);
 
-        if (scheduleId.equals(previousReservation.getSchedule().getId())) {
+        // Find the reservation and check its id before moving forward
+        ReservationDTO previousReservationDTO = findReservation(previousReservationId);
+
+        if (scheduleId.equals(previousReservationDTO.getSchedule().getId())) {
             throw new IllegalArgumentException("Cannot reschedule to the same slot.");
         }
+
+        Reservation previousReservation = cancel(previousReservationId);
 
         previousReservation.setReservationStatus(ReservationStatus.RESCHEDULED);
         reservationRepository.save(previousReservation);
